@@ -218,7 +218,7 @@ func StartOrUpdate(songName, wsURL string) {
 		if currentSong == song {
 			if len(lines) == 0 {
 				lines = []LyricLine{
-					{Time: 0, Text: "(Letra sincronizada não encontrada)"},
+					{Time: 0, Text: "(Synced lyrics not found)"},
 				}
 			}
 			lyricsLines = lines
@@ -247,8 +247,8 @@ func renderLoop() {
 		state.SongName = song
 
 		if len(lines) == 0 {
-			sb.WriteString(fmt.Sprintf("\033[36m=== Tocando Agora: %s ===\033[0m\n\n", song))
-			sb.WriteString("\033[90mBuscando letra...\033[0m\n")
+			sb.WriteString(fmt.Sprintf("\033[36m=== Now Playing: %s ===\033[0m\n\n", song))
+			sb.WriteString("\033[90mFetching lyrics...\033[0m\n")
 			fmt.Print(sb.String())
 			broadcastOverlay(state)
 			time.Sleep(1 * time.Second)
@@ -265,7 +265,7 @@ func renderLoop() {
 
 		mins := int(currentTime) / 60
 		secs := int(currentTime) % 60
-		sb.WriteString(fmt.Sprintf("\033[36m=== Tocando Agora: %s [%02d:%02d] ===\033[0m\n\n", song, mins, secs))
+		sb.WriteString(fmt.Sprintf("\033[36m=== Now Playing: %s [%02d:%02d] ===\033[0m\n\n", song, mins, secs))
 
 		var currentIndex int = -1
 		for i, line := range lines {
@@ -277,8 +277,8 @@ func renderLoop() {
 		}
 
 		if currentIndex == -1 {
-			sb.WriteString("\033[90mAguardando o trecho inicial...\033[0m\n")
-			state.Current = "Aguardando o trecho inicial..."
+			sb.WriteString("\033[90mWaiting for initial lyrics...\033[0m\n")
+			state.Current = "Waiting for initial lyrics..."
 		} else {
 
 			start := currentIndex - 3

@@ -145,25 +145,25 @@ func main() {
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		<-c
-		fmt.Println("\nEncerrando o programa e fechando a janela flutuante...")
+		fmt.Println("\nTerminating program and closing floating window...")
 		lyrics.Cleanup()
 		os.Exit(0)
 	}()
 
 	discordClientID := os.Getenv("DISCORD_CLIENT_ID")
 	if discordClientID == "" {
-		log.Println("Aviso: A variável de ambiente DISCORD_CLIENT_ID não está definida.")
+		log.Println("Warning: DISCORD_CLIENT_ID environment variable is not set.")
 	}
 
 	err := client.Login(discordClientID)
 	if err != nil {
-		log.Printf("Erro ao conectar no Discord: %v\n", err)
+		log.Printf("Error connecting to Discord: %v\n", err)
 	} else {
-		fmt.Println("Conectado ao Discord Rich Presence!")
+		fmt.Println("Connected to Discord Rich Presence!")
 		defer client.Logout()
 	}
 
-	fmt.Println("Iniciando monitoramento de abas e tempo de música...")
+	fmt.Println("Starting tab and music time monitoring...")
 
 	var currentPlaying string
 	var songStartTime time.Time
@@ -172,7 +172,7 @@ func main() {
 		for {
 			resp, err := http.Get("http://127.0.0.1:9222/json/list")
 			if err != nil {
-				log.Printf("Aguardando navegador... (Erro: %v)\n", err)
+				log.Printf("Waiting for browser... (Error: %v)\n", err)
 				time.Sleep(5 * time.Second)
 				continue
 			}
@@ -237,7 +237,7 @@ func main() {
 						}
 					}
 
-					statusDetails = "🎵 Ouvindo no YouTube"
+					statusDetails = "🎵 Listening on YouTube"
 					songState = cleanTitle
 					currentImage = getArtwork(songState)
 
@@ -250,7 +250,7 @@ func main() {
 					if !playing {
 						continue
 					}
-					statusDetails = "🎵 Ouvindo no Spotify"
+					statusDetails = "🎵 Listening on Spotify"
 					songState = strings.ReplaceAll(docTitle, " - Spotify", "")
 					currentImage = getArtwork(songState)
 					activeWsURL = t.WebSocketDebuggerURL
@@ -262,7 +262,7 @@ func main() {
 					if !playing {
 						continue
 					}
-					statusDetails = "🎵 Ouvindo no SoundCloud"
+					statusDetails = "🎵 Listening on SoundCloud"
 					songState = docTitle
 					currentImage = getArtwork(songState)
 					activeWsURL = t.WebSocketDebuggerURL
@@ -274,7 +274,6 @@ func main() {
 
 			if !foundMusic {
 				if currentPlaying != "" {
-					// Limpa o status no Discord se a música parar ou fechar a aba
 					client.SetActivity(client.Activity{})
 					currentPlaying = ""
 				}
@@ -302,7 +301,7 @@ func main() {
 			})
 
 			if err != nil {
-				log.Printf("Erro ao atualizar Discord: %v", err)
+				log.Printf("Error updating Discord: %v", err)
 			}
 
 			time.Sleep(5 * time.Second)

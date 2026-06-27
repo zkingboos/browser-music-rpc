@@ -39,12 +39,12 @@ func ShowUI() {
 	bg := canvas.NewRectangle(color.NRGBA{R: 20, G: 20, B: 25, A: 180})
 
 	songData := binding.NewString()
-	songData.Set("Aguardando...")
+	songData.Set("Waiting...")
 	songLabel = widget.NewLabelWithData(songData)
 	songLabel.Alignment = fyne.TextAlignCenter
 
 	lyricData := binding.NewString()
-	lyricData.Set("Conectando...")
+	lyricData.Set("Connecting...")
 	lyricLabel = widget.NewLabelWithData(lyricData)
 	lyricLabel.Alignment = fyne.TextAlignCenter
 	lyricLabel.TextStyle = fyne.TextStyle{Bold: true}
