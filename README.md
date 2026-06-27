@@ -37,7 +37,7 @@ When a song is identified, the program does two things:
    ```
 4. Run the main program:
    ```bash
-   go run main.go
+   go run .
    ```
 
 ## Main Dependencies
