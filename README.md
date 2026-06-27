@@ -1,6 +1,8 @@
-# Brave Scraper (Discord Rich Presence + Synced Lyrics)
+# Discord Web Presence (Rich Presence + Synced Lyrics)
 
-This project is a Go tool that connects to your browser (via the debugging port) to extract information about the music you are listening to and display it on your Discord profile (Rich Presence). Additionally, it features a floating widget that shows real-time synchronized lyrics on your screen.
+> Showcase your browser music as your Discord status with real-time synchronized floating lyrics.
+
+This project is a cross-platform Go tool that connects to your browser (via the debugging port) to extract information about the music you are listening to and display it on your Discord profile (Rich Presence). Additionally, it features a floating widget that shows real-time synchronized lyrics on your screen.
 
 ## How it works
 
@@ -18,7 +20,8 @@ When a song is identified, the program does two things:
 
 1. Have Go installed on your computer.
 2. The browser (Brave, Chrome, etc.) must be started with the debugging port open on `9222`.
-   - Shortcut example: `brave-browser --remote-debugging-port=9222`
+   - Windows shortcut example: `chrome.exe --remote-debugging-port=9222`
+   - macOS terminal example: `/Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --remote-debugging-port=9222`
 3. A "Client ID" from an application created in the [Discord Developer Portal](https://discord.com/developers/applications).
 
 ## How to run
