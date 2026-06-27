@@ -39,7 +39,7 @@ func getArtwork(songName string) string {
 
 	resp, err := http.Get(apiURL)
 	if err != nil || resp.StatusCode != 200 {
-		return ""
+		return "https://raw.githubusercontent.com/zkingboos/browser-music-rpc/master/assets/default.png"
 	}
 	defer resp.Body.Close()
 
@@ -50,7 +50,7 @@ func getArtwork(songName string) string {
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return ""
+		return "https://raw.githubusercontent.com/zkingboos/browser-music-rpc/master/assets/default.png"
 	}
 
 	if len(result.Results) > 0 {
@@ -59,7 +59,7 @@ func getArtwork(songName string) string {
 		return bigImg
 	}
 
-	defaultIcon := ""
+	defaultIcon := "https://raw.githubusercontent.com/zkingboos/browser-music-rpc/master/assets/default.png"
 	artworkCache[songName] = defaultIcon
 	return defaultIcon
 }
