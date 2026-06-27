@@ -64,13 +64,13 @@ func getArtwork(songName string) string {
 	return defaultIcon
 }
 
-func getMediaInfo(wsURL string) (isPlaying bool, currentTime float64, docTitle string, channel string) {
+func getMediaInfo(wsURL string) (isPlaying bool, currentTime float64, docTitle string, channel string, thumb string) {
 	if wsURL == "" {
-		return false, 0, "", ""
+		return false, 0, "", "", ""
 	}
 	c, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
 	if err != nil {
-		return false, 0, "", ""
+		return false, 0, "", "", ""
 	}
 	defer c.Close()
 
@@ -88,14 +88,35 @@ func getMediaInfo(wsURL string) (isPlaying bool, currentTime float64, docTitle s
 				let docTitle = domTitle || document.title || '';
 				let el = document.querySelector('yt-formatted-string.byline.ytmusic-player-bar a') || document.querySelector('.byline.ytmusic-player-bar a') || document.querySelector('#owner-name a') || document.querySelector('.ytd-channel-name a') || document.querySelector('ytd-channel-name yt-formatted-string');
 				let channel = el ? el.innerText.trim() : '';
-				return JSON.stringify({isPlaying, currentTime, docTitle, channel});
+				let thumb = '';
+				let url = window.location.href;
+				if (url.includes('youtube.com/watch')) {
+					let params = new URLSearchParams(window.location.search);
+					if (params.has('v')) {
+						thumb = 'https://i.ytimg.com/vi/' + params.get('v') + '/hqdefault.jpg';
+					}
+				}
+				if (!thumb) {
+					let imgEl = document.querySelector('img.image.ytmusic-player-bar') || document.querySelector('img[data-testid="cover-art-image"]');
+					if (imgEl && imgEl.src) thumb = imgEl.src;
+				}
+				if (!thumb) {
+					let scEl = document.querySelector('.playbackSoundBadge__avatar span.sc-artwork');
+					if (scEl) {
+						let bg = window.getComputedStyle(scEl).backgroundImage;
+						if (bg && bg !== 'none') {
+							thumb = bg.replace(/url\(['"]?(.*?)['"]?\)/i, '$1');
+						}
+					}
+				}
+				return JSON.stringify({isPlaying, currentTime, docTitle, channel, thumb});
 			})()`,
 		},
 	}
 
 	c.SetWriteDeadline(time.Now().Add(1 * time.Second))
 	if err := c.WriteJSON(req); err != nil {
-		return false, 0, "", ""
+		return false, 0, "", "", ""
 	}
 
 	var resp struct {
@@ -108,7 +129,7 @@ func getMediaInfo(wsURL string) (isPlaying bool, currentTime float64, docTitle s
 
 	c.SetReadDeadline(time.Now().Add(1 * time.Second))
 	if err := c.ReadJSON(&resp); err != nil {
-		return false, 0, "", ""
+		return false, 0, "", "", ""
 	}
 
 	var result struct {
@@ -116,10 +137,11 @@ func getMediaInfo(wsURL string) (isPlaying bool, currentTime float64, docTitle s
 		CurrentTime float64 `json:"currentTime"`
 		DocTitle    string  `json:"docTitle"`
 		Channel     string  `json:"channel"`
+		Thumb       string  `json:"thumb"`
 	}
 	json.Unmarshal([]byte(resp.Result.Result.Value), &result)
 
-	return result.IsPlaying, result.CurrentTime, result.DocTitle, result.Channel
+	return result.IsPlaying, result.CurrentTime, result.DocTitle, result.Channel, result.Thumb
 }
 
 func startMonitoring() {
@@ -166,7 +188,7 @@ func startMonitoring() {
 			if strings.Contains(pageURL, "youtube.com") {
 				wsURL = t.WebSocketDebuggerURL
 
-				playing, cTime, docTitle, channel := getMediaInfo(wsURL)
+				playing, cTime, docTitle, channel, thumb := getMediaInfo(wsURL)
 
 				if !playing || docTitle == "" {
 					continue
@@ -196,32 +218,44 @@ func startMonitoring() {
 
 				statusDetails = "🎵 Listening on YouTube"
 				songState = cleanTitle
-				currentImage = getArtwork(songState)
+				if thumb != "" && !strings.HasPrefix(thumb, "data:image") {
+					currentImage = thumb
+				} else {
+					currentImage = getArtwork(songState)
+				}
 
 				activeWsURL = wsURL
 				finalCurrentTime = cTime
 				foundMusic = true
 				break
 			} else if strings.Contains(pageURL, "open.spotify.com") {
-				playing, cTime, docTitle, _ := getMediaInfo(t.WebSocketDebuggerURL)
+				playing, cTime, docTitle, _, thumb := getMediaInfo(t.WebSocketDebuggerURL)
 				if !playing {
 					continue
 				}
 				statusDetails = "🎵 Listening on Spotify"
 				songState = strings.ReplaceAll(docTitle, " - Spotify", "")
-				currentImage = getArtwork(songState)
+				if thumb != "" && !strings.HasPrefix(thumb, "data:image") {
+					currentImage = thumb
+				} else {
+					currentImage = getArtwork(songState)
+				}
 				activeWsURL = t.WebSocketDebuggerURL
 				finalCurrentTime = cTime
 				foundMusic = true
 				break
 			} else if strings.Contains(pageURL, "soundcloud.com") {
-				playing, cTime, docTitle, _ := getMediaInfo(t.WebSocketDebuggerURL)
+				playing, cTime, docTitle, _, thumb := getMediaInfo(t.WebSocketDebuggerURL)
 				if !playing {
 					continue
 				}
 				statusDetails = "🎵 Listening on SoundCloud"
 				songState = docTitle
-				currentImage = getArtwork(songState)
+				if thumb != "" && !strings.HasPrefix(thumb, "data:image") {
+					currentImage = thumb
+				} else {
+					currentImage = getArtwork(songState)
+				}
 				activeWsURL = t.WebSocketDebuggerURL
 				finalCurrentTime = cTime
 				foundMusic = true
