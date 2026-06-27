@@ -39,7 +39,7 @@ func getArtwork(songName string) string {
 
 	resp, err := http.Get(apiURL)
 	if err != nil || resp.StatusCode != 200 {
-		return "https://raw.githubusercontent.com/hugolgst/rich-go/master/assets/large.png"
+		return ""
 	}
 	defer resp.Body.Close()
 
@@ -50,7 +50,7 @@ func getArtwork(songName string) string {
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "https://raw.githubusercontent.com/hugolgst/rich-go/master/assets/large.png"
+		return ""
 	}
 
 	if len(result.Results) > 0 {
@@ -59,7 +59,7 @@ func getArtwork(songName string) string {
 		return bigImg
 	}
 
-	defaultIcon := "https://raw.githubusercontent.com/hugolgst/rich-go/master/assets/large.png"
+	defaultIcon := ""
 	artworkCache[songName] = defaultIcon
 	return defaultIcon
 }
