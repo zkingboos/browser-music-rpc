@@ -273,11 +273,13 @@ func main() {
 			}
 
 			if !foundMusic {
-				statusDetails = "Navegando pela internet"
-				songState = "Brave Browser"
-				currentImage = "https://raw.githubusercontent.com/hugolgst/rich-go/master/assets/large.png"
-				songStartTime = time.Now()
-				currentPlaying = ""
+				if currentPlaying != "" {
+					// Limpa o status no Discord se a música parar ou fechar a aba
+					client.SetActivity(client.Activity{})
+					currentPlaying = ""
+				}
+				time.Sleep(5 * time.Second)
+				continue
 			}
 
 			if songState != currentPlaying {
